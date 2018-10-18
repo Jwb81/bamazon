@@ -10,22 +10,36 @@ const functions = require('./functions');
 var connection = mysql.createConnection(functions.vars.mysqlCon);
 
 
+
 // prompt the manager for input
 const promptUser = () => {
     return new Promise((resolve, reject) => {
         inquirer
-            .prompt([
-                {
-                    type: 'list',
-                    name: 'command',
-                    message: 'Main menu:',
-                    choices: ['View Products', 'View Low Inventory', 'Add Inventory', 'Add New Product']
+            .prompt([{
+                type: 'list',
+                name: 'command',
+                message: 'Main menu:',
+                choices: ['View Products', 'View Low Inventory', 'Add Inventory', 'Add New Product']
+            }]).then(res => {
+                switch (res.command) {
+                    case 'View Products':
+                        functions.displayItems(connection);
+                        break;
+                    case 'View Low Inventory':
+
+                        break;
+                    case 'Add Inventory':
+
+                        break;
+                    case 'Add New Product':
+
+                        break;
+                    default:
+                        break;
                 }
-            ]).then(res => {
-                console.log(res);
+                resolve();
             })
 
-        resolve();
     })
 }
 
@@ -33,16 +47,9 @@ const promptUser = () => {
 // actually connect to the database
 connection.connect(function (err) {
     if (err) throw err;
-    functions.displayItems(connection)
+
+    promptUser()
         .then(() => {
-            promptUser()
-                .then(() => {
-                    connection.end();
-                })
+            connection.end();
         })
-        .catch((err) => {
-            console.log(err);
-        })
-    // promptUser();
-    // connection.end();
 });
