@@ -38,7 +38,7 @@ const promptUser = () => {
                 }
             }
         ]).then((response) => {
-            const query = 'SELECT stock_quantity, price from products WHERE ?';
+            const query = 'SELECT * from products WHERE ?';
             const idObj = {
                 item_id: response.id
             };
@@ -73,7 +73,10 @@ const promptUser = () => {
 
                 // if there is enough quantity and the item exists, update it
                 console.log(`Your order has been processed. The total bill is: ${response.quantity * res.price}`);
-                functions.updateItem(connection, response.id, (res.stock_quantity - response.quantity))
+
+                const sales = (res.product_sales ? res.product_sales : 0) + (response.quantity * res.price); 
+                console.log(`Sales: ${sales}`);
+                functions.updateItem(connection, response.id, (res.stock_quantity - response.quantity), sales)
                     .then(resolve(functions.displayItems(connection)))
             })
         })

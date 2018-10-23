@@ -10,7 +10,6 @@ const functions = require('./functions');
 var connection = mysql.createConnection(functions.vars.mysqlCon);
 
 
-
 // prompt the manager for input
 const promptUser = () => {
     return new Promise((resolve, reject) => {
@@ -19,25 +18,17 @@ const promptUser = () => {
                 type: 'list',
                 name: 'command',
                 message: 'Main menu:',
-                choices: ['View Products', 'View Low Inventory', 'Add Inventory', 'Add New Product']
+                choices: ['View Product Sales by Department', 'Create New Department']
             }]).then(res => {
                 switch (res.command) {
-                    case 'View Products':
-                        resolve(functions.displayItems(connection));
+                    case 'View Product Sales by Department':
+                        resolve(functions.viewDepartmentSales(connection));
                         break;
-                    case 'View Low Inventory':
-                        resolve(functions.lowInventory(connection));
-                        break;
-                    case 'Add Inventory':
-                        resolve(
-                            functions.addItem(connection, inquirer)
-                            .catch(console.log)
-                        )
 
+                    case 'Create New Department':
+                        resolve(functions.createNewDepartment(connection));
                         break;
-                    case 'Add New Product':
-                        resolve(functions.addNewItem(connection, inquirer));
-                        break;
+
                     default:
                         break;
                 }
