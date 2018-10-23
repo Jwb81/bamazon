@@ -30,7 +30,7 @@ const promptUser = () => {
                         break;
                     case 'Add Inventory':
                         resolve(
-                            functions.addItem(connection, inquirer)
+                            functions.addToItem(connection, inquirer)
                             .catch(console.log)
                         )
 

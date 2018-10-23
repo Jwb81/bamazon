@@ -65,7 +65,7 @@ module.exports = {
     },
 
     // add new product to the database
-    addItem: (con, inquirer) => {
+    addToItem: (con, inquirer) => {
         return new Promise((resolve, reject) => {
             // prompt the user for the id and amount of the item
             inquirer.prompt([{
@@ -188,16 +188,79 @@ module.exports = {
         ON d.department_name = p.department_name
          `
 
-         con.query(query, (err, result) => {
-             if (err) {
-                 return console.log(err);
-             }
+        con.query(query, (err, result) => {
+            if (err) {
+                return console.log(err);
+            }
 
-             console.table(result);
-         })
+            console.table(result);
+        })
     },
 
     createNewDepartment: (con, inquirer) => {
+        return new Promise((resolve, reject) => {
+            // prompt the user for the id and amount of the item
+            inquirer.prompt([{
+                    type: 'input',
+                    name: 'id',
+                    message: 'Please type the ID of the product that you want to add: ',
+                    validate: (input) => {
+                        if (isNaN(input)) {
+                            return false;
+                        }
+                        return true;
+                    }
+                },
+                {
+                    type: 'input',
+                    name: 'quantity',
+                    message: 'How many of that product do you want to add? ',
+                    validate: (input) => {
+                        if (isNaN(input)) {
+                            return false;
+                        }
+                        return true;
+                    }
+                }
+            ]).then((response) => {
+                let stock_quantity;
 
+                // get the current stock quantity
+                let q = {
+                    item_id: response.id
+                };
+                con.query(`SELECT stock_quantity FROM products where ?`, q, (err, res) => {
+                    if (err) {
+                        return reject(err);
+                    }
+
+                    if (!res.length) {
+                        return reject('That is not a valid ITEM ID')
+                    }
+
+                    let updateSet = {
+                        stock_quantity: Number(res[0].stock_quantity) + Number(response.quantity)
+                    }
+                    let updateWhere = {
+                        item_id: response.id
+                    }
+
+                    const query = `UPDATE products SET ? WHERE ?`
+                    // let query = "INSERT INTO products SET ?";
+                    // var query = "SELECT item_id, product_name, price, stock_quantity FROM products";
+                    con.query(query, [updateSet, updateWhere], function (err, res) {
+                        console.log(q.sql);
+                        if (err) {
+                            return reject(err);
+                        }
+                        // console.table(res);
+                        module.exports.displayItems(con);
+                        return resolve();
+                    });
+                })
+
+
+            });
+        })
     }
 }
