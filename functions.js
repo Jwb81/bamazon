@@ -148,12 +148,24 @@ module.exports = {
                 {
                     type: 'input',
                     name: 'price',
-                    message: 'Price: '
+                    message: 'Price: ',
+                    validate: (input) => {
+                        if (isNaN(input)) {
+                            return false;
+                        }
+                        return true;
+                    }
                 },
                 {
                     type: 'input',
                     name: 'quantity',
                     message: 'Current quantity: ',
+                    validate: (input) => {
+                        if (isNaN(input)) {
+                            return false;
+                        }
+                        return true;
+                    },
                     default: 0
                 }
             ]).then(response => {
@@ -181,9 +193,10 @@ module.exports = {
         SELECT d.department_id, d.department_name, d.over_head_costs, p.product_sales, (p.product_sales - d.over_head_costs) as total_profit
         from departments d
         LEFT JOIN (
-        SELECT department_name, product_sales 
-        FROM products 
-        GROUP BY department_name
+        select department_name, SUM(product_sales) as product_sales
+        from products
+        group by department_name
+        order by department_name
         ) as p
         ON d.department_name = p.department_name
          `
@@ -202,19 +215,13 @@ module.exports = {
             // prompt the user for the id and amount of the item
             inquirer.prompt([{
                     type: 'input',
-                    name: 'id',
-                    message: 'Please type the ID of the product that you want to add: ',
-                    validate: (input) => {
-                        if (isNaN(input)) {
-                            return false;
-                        }
-                        return true;
-                    }
+                    name: 'name',
+                    message: 'Department name: ',
                 },
                 {
                     type: 'input',
-                    name: 'quantity',
-                    message: 'How many of that product do you want to add? ',
+                    name: 'overhead',
+                    message: 'Over head costs: ',
                     validate: (input) => {
                         if (isNaN(input)) {
                             return false;
@@ -223,40 +230,14 @@ module.exports = {
                     }
                 }
             ]).then((response) => {
-                let stock_quantity;
+                let query = `INSERT INTO departments (department_name, over_head_costs)
+                            VALUES ("${response.name}", ${response.overhead})`;
 
-                // get the current stock quantity
-                let q = {
-                    item_id: response.id
-                };
-                con.query(`SELECT stock_quantity FROM products where ?`, q, (err, res) => {
+                let q = con.query(query, (err, res) => {
                     if (err) {
                         return reject(err);
                     }
-
-                    if (!res.length) {
-                        return reject('That is not a valid ITEM ID')
-                    }
-
-                    let updateSet = {
-                        stock_quantity: Number(res[0].stock_quantity) + Number(response.quantity)
-                    }
-                    let updateWhere = {
-                        item_id: response.id
-                    }
-
-                    const query = `UPDATE products SET ? WHERE ?`
-                    // let query = "INSERT INTO products SET ?";
-                    // var query = "SELECT item_id, product_name, price, stock_quantity FROM products";
-                    con.query(query, [updateSet, updateWhere], function (err, res) {
-                        console.log(q.sql);
-                        if (err) {
-                            return reject(err);
-                        }
-                        // console.table(res);
-                        module.exports.displayItems(con);
-                        return resolve();
-                    });
+                    resolve();
                 })
 
 

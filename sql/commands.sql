@@ -34,6 +34,22 @@ where item_id > 0;
 
 select * from products;
 
+delete from products 
+where department_name = 'test';
+
+INSERT INTO products (product_name, department_name, price, stock_quantity)
+VALUES
+('Lenovo Yoga 13', 'Computers', 1299, 5),
+('LG OLED 65C8', 'Home Theater', 2499, 2),
+('Sony 65X900', 'Home Theater', 1999, 3),
+('Samsung 65NU8000', 'Home Theater', 1699, 6),
+('Samsung Smart Fridge', 'Appliances', 3499, 0),
+('LG Washer', 'Appliances', 449, 1),
+('LG Dryer', 'Appliances', 399, 1),
+('5ft Lightning cable', 'Cables', 19.99, 21),
+('5ft Micro USB cable', 'Cables', 14.99, 40);
+
+
 
 delete from products 
 where item_id > 1;
@@ -54,16 +70,21 @@ values
 ('Appliances', '400');
 
 ALTER TABLE products
-ADD product_sales decimal(10,2);
+ADD product_sales decimal(10,2) DEFAULT 0;
 
 ALTER TABLE products
 MODIFY COLUMN product_sales DECIMAL(10,2) DEFAULT 0;
 
+
+
+
 SELECT d.department_id, d.department_name, d.over_head_costs, p.product_sales, (p.product_sales - d.over_head_costs) as total_profit
 from departments d
 LEFT JOIN (
-SELECT department_name, product_sales 
-FROM products 
-GROUP BY department_name
+select department_name, SUM(product_sales) as product_sales
+from products
+group by department_name
+order by department_name
 ) as p
 ON d.department_name = p.department_name
+

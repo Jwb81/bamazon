@@ -33,7 +33,6 @@ const promptUser = () => {
                             functions.addToItem(connection, inquirer)
                             .catch(console.log)
                         )
-
                         break;
                     case 'Add New Product':
                         resolve(functions.addNewItem(connection, inquirer));

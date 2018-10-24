@@ -1,2 +1,2 @@
 # bamazon
-Amazon-like CLI program
+Amazon-like CLI program to simulate 

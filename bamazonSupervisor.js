@@ -26,7 +26,7 @@ const promptUser = () => {
                         break;
 
                     case 'Create New Department':
-                        resolve(functions.createNewDepartment(connection));
+                        resolve(functions.createNewDepartment(connection, inquirer));
                         break;
 
                     default:
